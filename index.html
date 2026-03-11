@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,51 +8,261 @@
 <style>
 
 body{
-font-family: Arial;
+font-family:Arial;
 text-align:center;
 background:#f2f2f2;
-margin-top:100px;
 }
 
 button{
-width:200px;
-height:80px;
-font-size:20px;
-margin:20px;
-border:none;
-border-radius:10px;
-background:#4CAF50;
-color:white;
+margin:5px;
+padding:10px 20px;
+font-size:16px;
 cursor:pointer;
 }
 
-button:hover{
-background:#45a049;
+table{
+margin:auto;
+border-collapse:collapse;
+width:80%;
+background:white;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:8px;
+}
+
+th{
+background:#ddd;
+}
+
+#popup{
+display:none;
+position:fixed;
+top:25%;
+left:40%;
+background:white;
+border:1px solid black;
+padding:20px;
 }
 
 </style>
-
 </head>
 
 <body>
 
+<!-- TRANG CHỦ -->
+
+<div id="home">
+
 <h1>Hệ thống quản lý lớp</h1>
 
-<button onclick="diemdanh()">📷 Điểm danh</button>
+<button onclick="showPage('classmenu')">📋 Danh sách lớp</button>
 
-<button onclick="danhsach()">📋 Danh sách lớp</button>
+</div>
+
+
+<!-- CHỌN LỚP -->
+
+<div id="classmenu" style="display:none">
+
+<h2>Chọn lớp</h2>
+
+<button onclick="showPage('class1')">Lớp 1</button>
+
+<br><br>
+
+<button onclick="showPage('home')">⬅ Quay lại</button>
+
+</div>
+
+
+
+<!-- LỚP 1 -->
+
+<div id="class1" style="display:none">
+
+<h2>Danh sách lớp 1</h2>
+
+<button onclick="openForm()">➕ Thêm học sinh</button>
+
+<br><br>
+
+<table id="studentTable">
+
+<tr>
+<th>STT</th>
+<th>Họ và tên</th>
+<th>Ngày sinh</th>
+<th>Tên bố/mẹ</th>
+<th>SĐT</th>
+<th>Nơi ở</th>
+<th>Sửa</th>
+</tr>
+
+</table>
+
+<br>
+
+<button onclick="showPage('classmenu')">⬅ Quay lại</button>
+
+</div>
+
+
+
+<!-- POPUP -->
+
+<div id="popup">
+
+<h3>Thông tin học sinh</h3>
+
+<input id="name" placeholder="Họ và tên"><br><br>
+<input id="birth" placeholder="Ngày sinh"><br><br>
+<input id="parent" placeholder="Tên bố/mẹ"><br><br>
+<input id="phone" placeholder="SĐT"><br><br>
+<input id="address" placeholder="Nơi ở"><br><br>
+
+<button onclick="saveStudent()">OK</button>
+<button onclick="closeForm()">Cancel</button>
+
+</div>
+
+
 
 <script>
 
-function diemdanh(){
-alert("Trang điểm danh sẽ làm sau");
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+let editIndex = -1;
+
+
+
+function showPage(page){
+
+document.getElementById("home").style.display="none";
+document.getElementById("classmenu").style.display="none";
+document.getElementById("class1").style.display="none";
+
+document.getElementById(page).style.display="block";
+
 }
 
-function danhsach(){
-alert("Trang danh sách lớp sẽ làm sau");
+
+
+function openForm(){
+
+editIndex=-1;
+
+document.getElementById("name").value="";
+document.getElementById("birth").value="";
+document.getElementById("parent").value="";
+document.getElementById("phone").value="";
+document.getElementById("address").value="";
+
+document.getElementById("popup").style.display="block";
+
 }
+
+
+
+function closeForm(){
+
+document.getElementById("popup").style.display="none";
+
+}
+
+
+
+function editStudent(index){
+
+editIndex=index;
+
+let s=students[index];
+
+document.getElementById("name").value=s.name;
+document.getElementById("birth").value=s.birth;
+document.getElementById("parent").value=s.parent;
+document.getElementById("phone").value=s.phone;
+document.getElementById("address").value=s.address;
+
+document.getElementById("popup").style.display="block";
+
+}
+
+
+
+function saveStudent(){
+
+let name=document.getElementById("name").value;
+let birth=document.getElementById("birth").value;
+let parent=document.getElementById("parent").value;
+let phone=document.getElementById("phone").value;
+let address=document.getElementById("address").value;
+
+let student={name,birth,parent,phone,address};
+
+if(editIndex==-1){
+
+students.push(student);
+
+}else{
+
+students[editIndex]=student;
+
+}
+
+students.sort((a,b)=>a.name.localeCompare(b.name));
+
+localStorage.setItem("students",JSON.stringify(students));
+
+renderTable();
+
+closeForm();
+
+}
+
+
+
+function renderTable(){
+
+let table=document.getElementById("studentTable");
+
+table.innerHTML=`
+<tr>
+<th>STT</th>
+<th>Họ và tên</th>
+<th>Ngày sinh</th>
+<th>Tên bố/mẹ</th>
+<th>SĐT</th>
+<th>Nơi ở</th>
+<th>Sửa</th>
+</tr>
+`;
+
+students.forEach((s,i)=>{
+
+table.innerHTML+=`
+<tr>
+<td>${i+1}</td>
+<td>${s.name}</td>
+<td>${s.birth}</td>
+<td>${s.parent}</td>
+<td>${s.phone}</td>
+<td>${s.address}</td>
+<td><button onclick="editStudent(${i})">✏</button></td>
+</tr>
+`;
+
+});
+
+}
+
+
+
+renderTable();
 
 </script>
 
 </body>
 </html>
+```
