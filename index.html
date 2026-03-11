@@ -2,89 +2,53 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Quản lý học sinh</title>
+<title>Quản lý lớp học</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+background:#f2f2f2;
+margin-top:100px;
+}
+
+button{
+width:200px;
+height:80px;
+font-size:20px;
+margin:20px;
+border:none;
+border-radius:10px;
+background:#4CAF50;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#45a049;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<h2>Nhập học sinh</h2>
+<h1>Hệ thống quản lý lớp</h1>
 
-<input id="id" placeholder="ID">
-<input id="name" placeholder="Tên">
-<button onclick="createQR()">Tạo QR</button>
+<button onclick="diemdanh()">📷 Điểm danh</button>
 
-<div id="qrcode"></div>
-
-<hr>
-
-<h2>Quét QR điểm danh</h2>
-
-<div id="reader" style="width:300px"></div>
-
-<hr>
-
-<h2>Nhập điểm</h2>
-
-<input id="sid" placeholder="ID">
-<input id="sname" placeholder="Tên">
-<input id="score" placeholder="Điểm">
-
-<button onclick="saveScore()">Lưu điểm</button>
+<button onclick="danhsach()">📋 Danh sách lớp</button>
 
 <script>
 
-var url="WEB_APP_URL";
-
-function createQR(){
-
-var id=document.getElementById("id").value;
-
-document.getElementById("qrcode").innerHTML="";
-
-new QRCode(document.getElementById("qrcode"),id);
-
+function diemdanh(){
+alert("Trang điểm danh sẽ làm sau");
 }
 
-function onScanSuccess(decodedText){
-
-fetch(url,{
-method:"POST",
-body:JSON.stringify({
-type:"attendance",
-id:decodedText,
-name:""
-})
-})
-
-alert("Điểm danh thành công: "+decodedText);
-
-}
-
-var scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:250});
-scanner.render(onScanSuccess);
-
-function saveScore(){
-
-var id=document.getElementById("sid").value;
-var name=document.getElementById("sname").value;
-var score=document.getElementById("score").value;
-
-fetch(url,{
-method:"POST",
-body:JSON.stringify({
-type:"score",
-id:id,
-name:name,
-score:score
-})
-})
-
-alert("Đã lưu điểm");
-
+function danhsach(){
+alert("Trang danh sách lớp sẽ làm sau");
 }
 
 </script>
