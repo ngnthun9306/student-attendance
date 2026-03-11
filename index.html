@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quản lý lớp</title>
+
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+background:#f2f2f2;
+}
+
+button{
+width:200px;
+height:60px;
+font-size:18px;
+margin:10px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#45a049;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+width:80%;
+}
+
+th,td{
+border:1px solid black;
+padding:8px;
+}
+
+th{
+background:#ddd;
+}
+#overlay{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+    z-index:999;
+    }
+    
+#popup{
+    display:none;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    z-index:1000;
+    }
+.editBtn{
+        width:35px;
+        height:35px;
+        font-size:16px;
+        padding:0;
+        margin:0;
+        background:#2196F3;
+        border-radius:5px;
+        }
+.deleteBtn{
+    width:35px;
+    height:35px;
+    font-size:16px;
+    background:#f44336;
+    border-radius:5px;
+    margin:2px;
+    }
+.error{
+    border:2px solid red;
+    }
+</style>
+
+</head>
+
+<body>
+    <div id="overlay"></div>
+<!-- TRANG CHỦ -->
+<div id="home">
+<h1>QUẢN LÝ LỚP NGÀNH THIẾU</h1>
+
+<button onclick="showPage('attendance')">📷 Điểm danh QR</button>
+<button onclick="showPage('classmenu')">📋 Danh sách lớp</button>
+</div>
+
+
+<!-- MENU CHỌN LỚP -->
+<div id="classmenu" style="display:none">
+
+<h2>TRƯỞNG MUỐN VÀO LỚP NÀO</h2>
+
+<button onclick="showClass('class1')">THIẾU 1</button>
+<button onclick="showClass('class2')">THIẾU 2</button>
+<button onclick="showClass('class3')">THIẾU 3</button>
+
+<br><br>
+
+<button onclick="showPage('home')">⬅ Quay lại</button>
+
+</div>
+
+
+<!-- LỚP 1 -->
+<div id="class1" style="display:none">
+
+<h2>THIẾU 1</h2>
+<!-- NÚT THÊM HỌC SINH -->
+<button onclick="openForm()">➕ Thêm học sinh</button>
+    
+<br><br>
+<table id="studentTable1">
+
+<tr>
+<th>STT</th>
+<th>Họ và tên</th>
+<th>Ngày sinh</th>
+<th>Tên bố/mẹ</th>
+<th>SĐT</th>
+<th>Nơi ở</th>
+<th>Thêm</th>
+</tr>
+
+</table>
+
+<br>
+
+<button onclick="showPage('classmenu')">⬅ Quay lại</button>
+
+</div>
+
+
+<!-- LỚP 2 -->
+<div id="class2" style="display:none">
+
+<h2>THIẾU 2</h2>
+<!-- NÚT THÊM HỌC SINH -->
+<button onclick="openForm()">➕ Thêm học sinh</button>
+
+<br><br>
+<table id="studentTable2">
+
+<tr>
+<th>STT</th>
+<th>Họ và tên</th>
+<th>Ngày sinh</th>
+<th>Tên bố/mẹ</th>
+<th>SĐT</th>
+<th>Nơi ở</th>
+<th>Thêm</th>
+</tr>
+
+</table>
+
+<br>
+
+<button onclick="showPage('classmenu')">⬅ Quay lại</button>
+
+</div>
+
+
+<!-- LỚP 3 -->
+<div id="class3" style="display:none">
+
+<h2>THIẾU 3</h2>
+<!-- NÚT THÊM HỌC SINH -->
+<button onclick="openForm()">➕ Thêm học sinh</button>
+
+<br><br>
+<table id="studentTable3">
+
+<tr>
+<th>STT</th>
+<th>Họ và tên</th>
+<th>Ngày sinh</th>
+<th>Tên bố/mẹ</th>
+<th>SĐT</th>
+<th>Nơi ở</th>
+<th>Thêm</th>
+</tr>
+
+</table>
+
+<br>
+
+<button onclick="showPage('classmenu')">⬅ Quay lại</button>
+
+</div>
+
+<div id="popup" style="display:none; position:fixed; top:30%; left:40%; background:white; padding:20px; border:1px solid black;">
+
+    <h3>Thông tin học sinh</h3>
+    
+    <input id="name" placeholder="Họ và tên"><br><br>
+    <input id="birth" placeholder="Ngày sinh"><br><br>
+    <input id="parent" placeholder="Tên bố/mẹ"><br><br>
+    <input id="phone" placeholder="SĐT"><br><br>
+    <input id="address" placeholder="Nơi ở"><br><br>
+    
+    <button onclick="saveStudent()">OK</button>
+    <button onclick="closeForm()">Cancel</button>
+    
+    </div>
+
+<script>
+let editMode=false;
+let currentRow=null;
+let currentClass = "";
+let students = JSON.parse(localStorage.getItem("students")) || []; 
+function showPage(page){
+
+document.getElementById("home").style.display="none";
+document.getElementById("classmenu").style.display="none";
+document.getElementById("class1").style.display="none";
+document.getElementById("class2").style.display="none";
+document.getElementById("class3").style.display="none";
+
+document.getElementById(page).style.display="block";
+
+}
+
+function showClass(classid){
+
+    document.getElementById("classmenu").style.display="none";
+    document.getElementById(classid).style.display="block";
+    
+    currentClass = classid;
+    
+    }
+function openForm(){
+
+        document.getElementById("overlay").style.display="block";
+        document.getElementById("popup").style.display="block";
+        
+        /* focus vào ô đầu */
+        
+        document.getElementById("name").focus();
+        
+        }
+function closeForm(){
+
+    document.getElementById("overlay").style.display="none";
+    document.getElementById("popup").style.display="none";
+            
+            /* reset toàn bộ input trong popup */
+            
+    document.querySelectorAll("#popup input").forEach(i=>{
+    i.value="";
+    i.classList.remove("error");
+    });
+            
+    }
+function saveStudent(){
+
+        let nameInput = document.getElementById("name");
+        let birthInput = document.getElementById("birth");
+        let parentInput = document.getElementById("parent");
+        let phoneInput = document.getElementById("phone");
+        let addressInput = document.getElementById("address");
+        
+        let name = nameInput.value.trim();
+        let birth = birthInput.value.trim();
+        let parent = parentInput.value.trim();
+        let phone = phoneInput.value.trim();
+        let address = addressInput.value.trim();
+        
+        let valid = true;
+        
+        /* reset lỗi */
+        
+        nameInput.classList.remove("error");
+        birthInput.classList.remove("error");
+        parentInput.classList.remove("error");
+        phoneInput.classList.remove("error");
+        addressInput.classList.remove("error");
+        
+        /* kiểm tra */
+        
+        if(name==""){
+        nameInput.classList.add("error");
+        valid=false;
+        }
+        
+        if(birth==""){
+        birthInput.classList.add("error");
+        valid=false;
+        }
+        
+        if(parent==""){
+        parentInput.classList.add("error");
+        valid=false;
+        }
+        
+        if(phone==""){
+        phoneInput.classList.add("error");
+        valid=false;
+        }
+        
+        if(address==""){
+        addressInput.classList.add("error");
+        valid=false;
+        }
+        
+        if(!valid){
+        return;
+        }
+        
+        let table = document.getElementById("studentTable" + currentClass.replace("class",""));
+        
+        let row = table.insertRow(-1);
+        
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell(1);
+        let cell3 = row.insertCell(2);
+        let cell4 = row.insertCell(3);
+        let cell5 = row.insertCell(4);
+        let cell6 = row.insertCell(5);
+        let cell7 = row.insertCell(6);
+        
+        cell1.innerHTML = table.rows.length - 1;
+        cell2.innerHTML = name;
+        cell3.innerHTML = birth;
+        cell4.innerHTML = parent;
+        cell5.innerHTML = phone;
+        cell6.innerHTML = address;
+        
+        cell7.innerHTML = "<button class='editBtn' onclick='editStudent(this)'>✏</button> <button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>";
+        students.push({
+            class: currentClass,
+            name:name,
+            birth:birth,
+            parent:parent,
+            phone:phone,
+            address:address
+            });
+            
+            localStorage.setItem("students",JSON.stringify(students));
+        closeForm();
+        sortTable(table);
+        fetch("https://script.google.com/macros/s/AKfycbz3TLHb-pjE1TyzkG2D2SjTg5BIAAvgfn4h_CMs5qFi9LRy_bjtkwKPn2DIZqOIfL8H/exec",{
+            method:"POST",
+            mode:"no-cors",
+            headers:{
+            "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+            className: currentClass,
+            name:name,
+            birth:birth,
+            parent:parent,
+            phone:phone,
+            address:address
+            })
+            });
+        }
+function editStudent(button){
+
+            editMode = true;
+            
+            currentRow = button.parentNode.parentNode;
+            
+            document.getElementById("name").value = currentRow.cells[1].innerHTML;
+            document.getElementById("birth").value = currentRow.cells[2].innerHTML;
+            document.getElementById("parent").value = currentRow.cells[3].innerHTML;
+            document.getElementById("phone").value = currentRow.cells[4].innerHTML;
+            document.getElementById("address").value = currentRow.cells[5].innerHTML;
+            
+            document.getElementById("overlay").style.display = "block";
+            document.getElementById("popup").style.display = "block";
+            
+            }
+function deleteStudent(button){
+
+                let row = button.parentNode.parentNode;
+                let table = row.parentNode;
+                let index = row.rowIndex - 1;
+                
+                row.remove();
+                
+                /* xoá trong mảng */
+                students.splice(index,1);
+                
+                /* lưu lại */
+                localStorage.setItem("students",JSON.stringify(students));
+                
+                /* cập nhật lại STT */
+                updateSTT(table);
+                
+                }
+function sortTable(table){
+
+                    let rows = Array.from(table.rows).slice(1);
+            
+                    rows.sort(function(a,b){
+                    
+                    let nameA = a.cells[1].innerHTML.toLowerCase();
+                    let nameB = b.cells[1].innerHTML.toLowerCase();
+                    
+                    return nameA.localeCompare(nameB);
+                    
+                    });
+                    
+                    rows.forEach(row => table.appendChild(row));
+                    
+                    /* cập nhật lại STT */
+                    
+                    for(let i=1;i<table.rows.length;i++){
+                    table.rows[i].cells[0].innerHTML = i;
+                    }
+                    
+                    }
+function loadStudents(){
+
+    students.forEach(student => {
+
+        if(!student || !student.class) return;
+        
+        let table = document.getElementById(
+            "studentTable" + student.class.replace("class","")
+        );
+        
+                let row = table.insertRow(-1);
+        
+                let cell1 = row.insertCell(0);
+                let cell2 = row.insertCell(1);
+                let cell3 = row.insertCell(2);
+                let cell4 = row.insertCell(3);
+                let cell5 = row.insertCell(4);
+                let cell6 = row.insertCell(5);
+                let cell7 = row.insertCell(6);
+        
+                cell1.innerHTML = table.rows.length - 1;
+                cell2.innerHTML = student.name;
+                cell3.innerHTML = student.birth;
+                cell4.innerHTML = student.parent;
+                cell5.innerHTML = student.phone;
+                cell6.innerHTML = student.address;
+        
+                cell7.innerHTML =
+                "<button class='editBtn' onclick='editStudent(this)'>✏</button> " +
+                "<button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>";
+        
+            });
+        
+        }
+function updateSTT(table){
+
+            let rows = table.rows;
+            
+            for(let i=1;i<rows.length;i++){
+            
+            rows[i].cells[0].innerHTML = i;
+            
+            }
+            
+            }
+document.addEventListener("keydown", function(event){
+
+            if(event.key === "Enter"){
+            
+            let popup = document.getElementById("popup");
+            
+            if(popup.style.display === "block"){
+            saveStudent();
+            }
+            
+            }
+            
+            });
+document.addEventListener("keydown", function(event){
+
+                if(event.key === "Escape"){
+                
+                let popup = document.getElementById("popup");
+                
+                if(popup.style.display === "block"){
+                closeForm();
+                }
+                
+                }
+                
+                });
+loadStudents();
+</script>
+
+</body>
+</html>
