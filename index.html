@@ -6,13 +6,21 @@
 
 <style>
 
-body{
-font-family: Arial;
-text-align:center;
-background:#f2f2f2;
+body { font-family: Arial; text-align:center; background:#f2f2f2; margin:0; }
+h1{
+font-size:36px;
+margin-top:30px;
+letter-spacing:2px;
 }
 
-button{
+h2{
+margin-bottom:20px;
+}
+#home button,
+#classmenu button,
+#class1 > button,
+#class2 > button,
+#class3 > button{
 width:200px;
 height:60px;
 font-size:18px;
@@ -35,25 +43,53 @@ width:80%;
 }
 
 th,td{
-border:1px solid black;
-padding:8px;
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+}
+
+tr:hover{
+background:#f9f9f9;
 }
 
 th{
 background:#ddd;
 }
 #overlay{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.4);
-    z-index:999;
-    }
-    
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+z-index:500;
+}
 #popup{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.3);
+width:90%;
+max-width:400px;
+z-index:1000;
+}
+#popup input{
+width:100%;
+padding:8px;
+margin-top:5px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+.error{
+border:2px solid red !important;
+}
+#qrPopup{
     display:none;
     position:fixed;
     top:50%;
@@ -61,31 +97,70 @@ background:#ddd;
     transform:translate(-50%,-50%);
     background:white;
     padding:20px;
-    border-radius:8px;
-    z-index:1000;
+    border-radius:10px;
+    z-index:2000;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
     }
-.editBtn{
-        width:35px;
-        height:35px;
-        font-size:16px;
-        padding:0;
-        margin:0;
-        background:#2196F3;
-        border-radius:5px;
-        }
-.deleteBtn{
-    width:35px;
-    height:35px;
-    font-size:16px;
-    background:#f44336;
-    border-radius:5px;
-    margin:2px;
+#qrcode{
+    width:200px;
+    height:200px;
+    margin:20px auto;
     }
-.error{
-    border:2px solid red;
-    }
-</style>
+.editBtn,
+.deleteBtn,
+.qrBtn{
+width:32px;
+height:32px;
+margin:2px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:16px;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+}
 
+.editBtn{
+background:#ffd966;
+}
+
+.deleteBtn{
+background:#ff6b6b;
+color:white;
+}
+
+td:last-child{
+text-align:center;
+}
+.qrBtn{
+background:#4da6ff;
+color:white;
+}
+#deletePopup{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:20px;
+border-radius:10px;
+z-index:2000;
+text-align:center;
+}
+#popup button,
+#deletePopup button,
+#qrPopup button{
+width:auto;
+height:auto;
+padding:6px 12px;
+margin:5px;
+font-size:14px;
+border-radius:6px;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -127,7 +202,7 @@ background:#ddd;
 
 <tr>
 <th>STT</th>
-<th>Họ và tên</th>
+<th>Tên Thánh-Họ và tên</th>
 <th>Ngày sinh</th>
 <th>Tên bố/mẹ</th>
 <th>SĐT</th>
@@ -156,7 +231,7 @@ background:#ddd;
 
 <tr>
 <th>STT</th>
-<th>Họ và tên</th>
+<th>Tên Thánh-Họ và tên</th>
 <th>Ngày sinh</th>
 <th>Tên bố/mẹ</th>
 <th>SĐT</th>
@@ -185,7 +260,7 @@ background:#ddd;
 
 <tr>
 <th>STT</th>
-<th>Họ và tên</th>
+<th>Tên Thánh-Họ và tên</th>
 <th>Ngày sinh</th>
 <th>Tên bố/mẹ</th>
 <th>SĐT</th>
@@ -205,34 +280,52 @@ background:#ddd;
 
     <h3>Thông tin học sinh</h3>
     
-    <input id="name" placeholder="Họ và tên"><br><br>
-    <input id="birth" placeholder="Ngày sinh"><br><br>
-    <input id="parent" placeholder="Tên bố/mẹ"><br><br>
-    <input id="phone" placeholder="SĐT"><br><br>
-    <input id="address" placeholder="Nơi ở"><br><br>
+    <input type="text" id="name" placeholder="Tên thánh và họ tên">
+    <input type="text" id="birth" placeholder="Ngày sinh (dd/mm/yyyy)">
+    <input type="text" id="parent" placeholder="Tên phụ huynh">
+    <input type="text" id="phone" placeholder="Số điện thoại">
+    <input type="text" id="address" placeholder="Địa chỉ">
     
     <button onclick="saveStudent()">OK</button>
     <button onclick="closeForm()">Cancel</button>
     
     </div>
+<div id="qrPopup">
 
+    <h3>Mã QR học sinh</h3>
+
+    <div id="qrcode"></div>
+
+    <br>
+
+    <button onclick="closeQR()">Đóng</button>
+
+    </div>
+<div id="deletePopup" class="popup">
+<h3>Bạn có chắc muốn xóa học sinh này?</h3>
+
+<button onclick="confirmDelete()">✔ Xóa</button>
+<button onclick="cancelDelete()">❌ Hủy</button>
+
+</div>
 <script>
 let editMode=false;
 let currentRow=null;
 let currentClass = "";
 let students = JSON.parse(localStorage.getItem("students")) || []; 
+let rowToDelete = null;
+let tableToUpdate = null;
 function showPage(page){
 
-document.getElementById("home").style.display="none";
-document.getElementById("classmenu").style.display="none";
-document.getElementById("class1").style.display="none";
-document.getElementById("class2").style.display="none";
-document.getElementById("class3").style.display="none";
+    document.getElementById("home").style.display="none";
+    document.getElementById("classmenu").style.display="none";
+    document.getElementById("class1").style.display="none";
+    document.getElementById("class2").style.display="none";
+    document.getElementById("class3").style.display="none";
 
-document.getElementById(page).style.display="block";
+    document.getElementById(page).style.display="block";
 
-}
-
+    }
 function showClass(classid){
 
     document.getElementById("classmenu").style.display="none";
@@ -243,14 +336,14 @@ function showClass(classid){
     }
 function openForm(){
 
-        document.getElementById("overlay").style.display="block";
-        document.getElementById("popup").style.display="block";
-        
-        /* focus vào ô đầu */
-        
-        document.getElementById("name").focus();
-        
-        }
+    document.getElementById("overlay").style.display="block";
+    document.getElementById("popup").style.display="block";
+    
+    /* focus vào ô đầu */
+    
+    document.getElementById("name").focus();
+    
+    }
 function closeForm(){
 
     document.getElementById("overlay").style.display="none";
@@ -266,236 +359,322 @@ function closeForm(){
     }
 function saveStudent(){
 
-        let nameInput = document.getElementById("name");
-        let birthInput = document.getElementById("birth");
-        let parentInput = document.getElementById("parent");
-        let phoneInput = document.getElementById("phone");
-        let addressInput = document.getElementById("address");
-        
-        let name = nameInput.value.trim();
-        let birth = birthInput.value.trim();
-        let parent = parentInput.value.trim();
-        let phone = phoneInput.value.trim();
-        let address = addressInput.value.trim();
-        
-        let valid = true;
-        
-        /* reset lỗi */
-        
-        nameInput.classList.remove("error");
-        birthInput.classList.remove("error");
-        parentInput.classList.remove("error");
-        phoneInput.classList.remove("error");
-        addressInput.classList.remove("error");
-        
-        /* kiểm tra */
-        
-        if(name==""){
+    let nameInput = document.getElementById("name");
+    let birthInput = document.getElementById("birth");
+    let parentInput = document.getElementById("parent");
+    let phoneInput = document.getElementById("phone");
+    let addressInput = document.getElementById("address");
+    
+    let name = nameInput.value.trim();
+    let birth = birthInput.value.trim();
+    let parent = parentInput.value.trim();
+    let phone = phoneInput.value.trim();
+    let address = addressInput.value.trim();
+    let studentID = Date.now();
+    let valid = true;
+
+    /* reset lỗi */
+    nameInput.classList.remove("error");
+    birthInput.classList.remove("error");
+    parentInput.classList.remove("error");
+    phoneInput.classList.remove("error");
+    addressInput.classList.remove("error");
+
+    /* kiểm tra dữ liệu */
+    if(name==""){
         nameInput.classList.add("error");
         valid=false;
-        }
-        
-        if(birth==""){
+    }
+
+    if(birth==""){
         birthInput.classList.add("error");
         valid=false;
-        }
-        
-        if(parent==""){
+    }
+
+    if(parent==""){
         parentInput.classList.add("error");
         valid=false;
-        }
-        
-        if(phone==""){
+    }
+
+    if(phone==""){
         phoneInput.classList.add("error");
         valid=false;
-        }
-        
-        if(address==""){
+    }
+
+    if(address==""){
         addressInput.classList.add("error");
         valid=false;
-        }
-        
-        if(!valid){
+    }
+
+    if(!valid){
         return;
-        }
-        
-        let table = document.getElementById("studentTable" + currentClass.replace("class",""));
-        
-        let row = table.insertRow(-1);
-        
-        let cell1 = row.insertCell(0);
-        let cell2 = row.insertCell(1);
-        let cell3 = row.insertCell(2);
-        let cell4 = row.insertCell(3);
-        let cell5 = row.insertCell(4);
-        let cell6 = row.insertCell(5);
-        let cell7 = row.insertCell(6);
-        
-        cell1.innerHTML = table.rows.length - 1;
-        cell2.innerHTML = name;
-        cell3.innerHTML = birth;
-        cell4.innerHTML = parent;
-        cell5.innerHTML = phone;
-        cell6.innerHTML = address;
-        
-        cell7.innerHTML = "<button class='editBtn' onclick='editStudent(this)'>✏</button> <button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>";
-        students.push({
-            class: currentClass,
-            name:name,
-            birth:birth,
-            parent:parent,
-            phone:phone,
-            address:address
-            });
-            
-            localStorage.setItem("students",JSON.stringify(students));
+    }
+
+    /* =================== CHẾ ĐỘ SỬA =================== */
+
+    if(editMode){
+
+        currentRow.cells[1].innerHTML = name;
+        currentRow.cells[2].innerHTML = birth;
+        currentRow.cells[3].innerHTML = parent;
+        currentRow.cells[4].innerHTML = phone;
+        currentRow.cells[5].innerHTML = address;
+
+        let id = currentRow.dataset.id;
+
+        students.forEach(s=>{
+            if(s.id == id){
+                s.name = name;
+                s.birth = birth;
+                s.parent = parent;
+                s.phone = phone;
+                s.address = address;
+            }
+        });
+
+        localStorage.setItem("students",JSON.stringify(students));
+
+        editMode = false;
+
         closeForm();
-        sortTable(table);
-        fetch("https://script.google.com/macros/s/AKfycbz3TLHb-pjE1TyzkG2D2SjTg5BIAAvgfn4h_CMs5qFi9LRy_bjtkwKPn2DIZqOIfL8H/exec",{
-            method:"POST",
-            mode:"no-cors",
-            headers:{
+        return;
+    }
+
+    /* =================== THÊM HỌC SINH =================== */
+
+    let table = document.getElementById("studentTable" + currentClass.replace("class",""));
+
+    let row = table.insertRow(-1);
+    row.dataset.id = studentID;
+
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+
+    cell1.innerHTML = table.rows.length - 1;
+    cell2.innerHTML = name;
+    cell3.innerHTML = birth;
+    cell4.innerHTML = parent;
+    cell5.innerHTML = phone;
+    cell6.innerHTML = address;
+
+    cell7.innerHTML =
+    "<button class='editBtn' onclick='editStudent(this)'>✏</button>"+
+    "<button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>"+
+    "<button class='qrBtn' onclick='showQR(this)'>📱</button>";
+
+    students.push({
+        id:studentID,
+        class:currentClass,
+        name:name,
+        birth:birth,
+        parent:parent,
+        phone:phone,
+        address:address
+    });
+
+    localStorage.setItem("students",JSON.stringify(students));
+
+    closeForm();
+    sortTable(table);
+
+    fetch("https://script.google.com/macros/s/AKfycbz3TLHb-pjE1TyzkG2D2SjTg5BIAAvgfn4h_CMs5qFi9LRy_bjtkwKPn2DIZqOIfL8H/exec",{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
             "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
+        },
+        body:JSON.stringify({
             className: currentClass,
             name:name,
             birth:birth,
             parent:parent,
             phone:phone,
             address:address
-            })
-            });
-        }
+        })
+    });
+
+}
 function editStudent(button){
 
-            editMode = true;
-            
-            currentRow = button.parentNode.parentNode;
-            
-            document.getElementById("name").value = currentRow.cells[1].innerHTML;
-            document.getElementById("birth").value = currentRow.cells[2].innerHTML;
-            document.getElementById("parent").value = currentRow.cells[3].innerHTML;
-            document.getElementById("phone").value = currentRow.cells[4].innerHTML;
-            document.getElementById("address").value = currentRow.cells[5].innerHTML;
-            
-            document.getElementById("overlay").style.display = "block";
-            document.getElementById("popup").style.display = "block";
-            
-            }
+    editMode = true;
+    
+    currentRow = button.parentNode.parentNode;
+    
+    document.getElementById("name").value = currentRow.cells[1].innerHTML;
+    document.getElementById("birth").value = currentRow.cells[2].innerHTML;
+    document.getElementById("parent").value = currentRow.cells[3].innerHTML;
+    document.getElementById("phone").value = currentRow.cells[4].innerHTML;
+    document.getElementById("address").value = currentRow.cells[5].innerHTML;
+    
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("popup").style.display = "block";
+    
+    }
 function deleteStudent(button){
 
-                let row = button.parentNode.parentNode;
-                let table = row.parentNode;
-                let index = row.rowIndex - 1;
-                
-                row.remove();
-                
-                /* xoá trong mảng */
-                students.splice(index,1);
-                
-                /* lưu lại */
-                localStorage.setItem("students",JSON.stringify(students));
-                
-                /* cập nhật lại STT */
-                updateSTT(table);
-                
-                }
+rowToDelete = button.parentNode.parentNode;
+tableToUpdate = rowToDelete.parentNode;
+
+document.getElementById("overlay").style.display="block";
+document.getElementById("deletePopup").style.display="block";
+
+}
 function sortTable(table){
 
-                    let rows = Array.from(table.rows).slice(1);
-            
-                    rows.sort(function(a,b){
-                    
-                    let nameA = a.cells[1].innerHTML.toLowerCase();
-                    let nameB = b.cells[1].innerHTML.toLowerCase();
-                    
-                    return nameA.localeCompare(nameB);
-                    
-                    });
-                    
-                    rows.forEach(row => table.appendChild(row));
-                    
-                    /* cập nhật lại STT */
-                    
-                    for(let i=1;i<table.rows.length;i++){
-                    table.rows[i].cells[0].innerHTML = i;
-                    }
-                    
-                    }
+    let rows = Array.from(table.rows).slice(1);
+
+    rows.sort(function(a,b){
+    
+    let nameA = a.cells[1].innerHTML.toLowerCase();
+    let nameB = b.cells[1].innerHTML.toLowerCase();
+    
+    return nameA.localeCompare(nameB);
+    
+    });
+    
+    rows.forEach(row => table.appendChild(row));
+    
+    /* cập nhật lại STT */
+    
+    for(let i=1;i<table.rows.length;i++){
+    table.rows[i].cells[0].innerHTML = i;
+    }
+    
+    }
 function loadStudents(){
 
     students.forEach(student => {
 
-        if(!student || !student.class) return;
-        
-        let table = document.getElementById(
-            "studentTable" + student.class.replace("class","")
-        );
-        
-                let row = table.insertRow(-1);
-        
-                let cell1 = row.insertCell(0);
-                let cell2 = row.insertCell(1);
-                let cell3 = row.insertCell(2);
-                let cell4 = row.insertCell(3);
-                let cell5 = row.insertCell(4);
-                let cell6 = row.insertCell(5);
-                let cell7 = row.insertCell(6);
-        
-                cell1.innerHTML = table.rows.length - 1;
-                cell2.innerHTML = student.name;
-                cell3.innerHTML = student.birth;
-                cell4.innerHTML = student.parent;
-                cell5.innerHTML = student.phone;
-                cell6.innerHTML = student.address;
-        
-                cell7.innerHTML =
-                "<button class='editBtn' onclick='editStudent(this)'>✏</button> " +
-                "<button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>";
+    if(!student || !student.class) return;
+    
+    let table = document.getElementById(
+        "studentTable" + student.class.replace("class","")
+    );
+    
+    let row = table.insertRow(-1);
+    row.dataset.id = student.id;
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+    
+    cell1.innerHTML = table.rows.length - 1;
+    cell2.innerHTML = student.name;
+    cell3.innerHTML = student.birth;
+    cell4.innerHTML = student.parent;
+    cell5.innerHTML = student.phone;
+    cell6.innerHTML = student.address;
+
+    cell7.innerHTML =
+"<button class='editBtn' onclick='editStudent(this)'>✏</button>"+
+"<button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>"+
+"<button class='qrBtn' onclick='showQR(this)'>📱</button>";
         
             });
         
         }
+function showQR(button){
+
+    let row = button.parentNode.parentNode;
+
+    let data = row.dataset.id;
+
+    document.getElementById("overlay").style.display="block";
+    document.getElementById("qrPopup").style.display="block";
+
+    let qrDiv = document.getElementById("qrcode");
+
+    qrDiv.innerHTML="";
+
+    new QRCode(qrDiv,{
+    text:data,
+    width:200,
+    height:200
+    });
+
+    }
+function closeQR(){
+
+    document.getElementById("overlay").style.display="none";
+    document.getElementById("qrPopup").style.display="none";
+
+}
 function updateSTT(table){
 
-            let rows = table.rows;
-            
-            for(let i=1;i<rows.length;i++){
-            
-            rows[i].cells[0].innerHTML = i;
-            
-            }
-            
-            }
+    let rows = table.rows;
+    
+    for(let i=1;i<rows.length;i++){
+    
+    rows[i].cells[0].innerHTML = i;
+    
+    }
+    
+    }
+function confirmDelete(){
+
+    if(rowToDelete){
+
+        let id = rowToDelete.dataset.id;
+
+        students = students.filter(s => s.id != id);
+
+        localStorage.setItem("students",JSON.stringify(students));
+
+        rowToDelete.remove();
+
+        updateSTT(tableToUpdate);   // ✔ cập nhật lại STT
+
+        rowToDelete = null;
+
+    }
+
+    document.getElementById("deletePopup").style.display="none";
+    document.getElementById("overlay").style.display="none";
+
+}
+function cancelDelete(){
+
+    rowToDelete = null;
+
+    document.getElementById("deletePopup").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+
+}
 document.addEventListener("keydown", function(event){
 
-            if(event.key === "Enter"){
-            
-            let popup = document.getElementById("popup");
-            
-            if(popup.style.display === "block"){
-            saveStudent();
-            }
-            
-            }
-            
-            });
+    if(event.key === "Enter"){
+    
+    let popup = document.getElementById("popup");
+    
+    if(popup.style.display === "block"){
+    saveStudent();
+    }
+    
+    }
+    
+    });
 document.addEventListener("keydown", function(event){
 
-                if(event.key === "Escape"){
-                
-                let popup = document.getElementById("popup");
-                
-                if(popup.style.display === "block"){
-                closeForm();
-                }
-                
-                }
-                
-                });
+    if(event.key === "Escape"){
+    
+    let popup = document.getElementById("popup");
+    
+    if(popup.style.display === "block"){
+    closeForm();
+    }
+    
+    }
+    
+    });
 loadStudents();
 </script>
-
 </body>
 </html>
