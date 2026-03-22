@@ -6,7 +6,7 @@
 
 <style>
 
-body { font-family: Arial; text-align:center; background:#f2f2f2; margin:0; }
+body { font-family: Arial; text-align:center; background:#f1f1f1; margin:0; }
 h1{
 font-size:36px;
 margin-top:30px;
@@ -276,7 +276,7 @@ border-radius:6px;
 
 </div>
 
-<div id="popup" style="display:none; position:fixed; top:30%; left:40%; background:white; padding:20px; border:1px solid black;">
+<div id="popup">
 
     <h3>Thông tin học sinh</h3>
     
@@ -481,21 +481,21 @@ function saveStudent(){
 
     closeForm();
     sortTable(table);
-
-    fetch("https://script.google.com/macros/s/AKfycbz3TLHb-pjE1TyzkG2D2SjTg5BIAAvgfn4h_CMs5qFi9LRy_bjtkwKPn2DIZqOIfL8H/exec",{
-        method:"POST",
-        mode:"no-cors",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            className: currentClass,
-            name:name,
-            birth:birth,
-            parent:parent,
-            phone:phone,
-            address:address
-        })
+    fetch("https://script.google.com/macros/s/AKfycbzgJK-qgFnQVi-o1nTleyYSkHNju57vuZ89z18_IXlweeBRJINCmJ7D3L76_gDIYgvZ/exec",{
+    method:"POST",
+    mode:"no-cors",
+    headers:{
+    "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+    id:studentID,
+    className: currentClass,
+    name:name,
+    birth:birth,
+    parent:parent,
+    phone:phone,
+    address:address
+    })
     });
 
 }
@@ -517,11 +517,29 @@ function editStudent(button){
     }
 function deleteStudent(button){
 
-rowToDelete = button.parentNode.parentNode;
-tableToUpdate = rowToDelete.parentNode;
+if(!confirm("Bạn có chắc muốn xóa học sinh này không?")) return;
 
-document.getElementById("overlay").style.display="block";
-document.getElementById("deletePopup").style.display="block";
+let row = button.parentNode.parentNode;
+let table = row.parentNode;
+
+let name = row.cells[1].innerText;
+let phone = row.cells[4].innerText;
+
+fetch("https://script.google.com/macros/s/AKfycbzgJK-qgFnQVi-o1nTleyYSkHNju57vuZ89z18_IXlweeBRJINCmJ7D3L76_gDIYgvZ/exec",{
+method:"POST",
+mode:"no-cors",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+action:"delete",
+name:name,
+phone:phone
+})
+});
+
+row.remove();
+updateSTT(table);
 
 }
 function sortTable(table){
@@ -623,7 +641,17 @@ function confirmDelete(){
     if(rowToDelete){
 
         let id = rowToDelete.dataset.id;
-
+        fetch("https://script.google.com/macros/s/AKfycbzgJK-qgFnQVi-o1nTleyYSkHNju57vuZ89z18_IXlweeBRJINCmJ7D3L76_gDIYgvZ/exec",{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
+        "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+        action:"delete",
+        id:id
+        })
+        });
         students = students.filter(s => s.id != id);
 
         localStorage.setItem("students",JSON.stringify(students));
@@ -646,6 +674,47 @@ function cancelDelete(){
 
     document.getElementById("deletePopup").style.display = "none";
     document.getElementById("overlay").style.display = "none";
+
+}
+function loadFromSheet(){
+
+    fetch("https://script.google.com/macros/s/AKfycbzgJK-qgFnQVi-o1nTleyYSkHNju57vuZ89z18_IXlweeBRJINCmJ7D3L76_gDIYgvZ/exec")
+
+    .then(res => res.json())
+
+    .then(data => {
+
+    data.forEach(student => {
+
+    let table = document.getElementById(
+    "studentTable" + student.class.replace("class","")
+    );
+
+    let row = table.insertRow(-1);
+
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+
+    cell1.innerHTML = table.rows.length-1;
+    cell2.innerHTML = student.name;
+    cell3.innerHTML = student.birth;
+    cell4.innerHTML = student.parent;
+    cell5.innerHTML = student.phone;
+    cell6.innerHTML = student.address;
+
+    cell7.innerHTML =
+    "<button class='editBtn' onclick='editStudent(this)'>✏</button>"+
+    "<button class='deleteBtn' onclick='deleteStudent(this)'>🗑</button>"+
+    "<button class='qrBtn' onclick='showQR(this)'>📱</button>";
+
+    });
+
+    });
 
 }
 document.addEventListener("keydown", function(event){
@@ -674,7 +743,7 @@ document.addEventListener("keydown", function(event){
     }
     
     });
-loadStudents();
+loadFromSheet();
 </script>
 </body>
 </html>
