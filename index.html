@@ -421,25 +421,27 @@ function saveStudent(){
         currentRow.cells[5].innerHTML = address;
 
         let id = currentRow.dataset.id;
+       fetch("https://script.google.com/macros/s/AKfycbzgJK-qgFnQVi-o1nTleyYSkHNju57vuZ89z18_IXlweeBRJINCmJ7D3L76_gDIYgvZ/exec",{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            action:"update",
+            id:id,
+            name:name,
+            birth:birth,
+            parent:parent,
+            phone:phone,
+            address:address
+        })
+    });
 
-        students.forEach(s=>{
-            if(s.id == id){
-                s.name = name;
-                s.birth = birth;
-                s.parent = parent;
-                s.phone = phone;
-                s.address = address;
-            }
-        });
-
-        localStorage.setItem("students",JSON.stringify(students));
-
-        editMode = false;
-
-        closeForm();
-        return;
+    editMode = false;
+    closeForm();
+    return;
     }
-
     /* =================== THÊM HỌC SINH =================== */
 
     let table = document.getElementById("studentTable" + currentClass.replace("class",""));
@@ -489,7 +491,7 @@ function saveStudent(){
     },
     body:JSON.stringify({
     id:studentID,
-    className: currentClass,
+    className: currentClass.replace("class","Thiếu "),
     name:name,
     birth:birth,
     parent:parent,
@@ -683,15 +685,15 @@ function loadFromSheet(){
     .then(res => res.json())
 
     .then(data => {
-
+console.log("DATA:", data);
     data.forEach(student => {
 
     let table = document.getElementById(
-    "studentTable" + student.class.replace("class","")
+    "studentTable" + student.class.replace("Thiếu ","")
     );
 
     let row = table.insertRow(-1);
-
+    row.dataset.id = student.id;
     let cell1 = row.insertCell(0);
     let cell2 = row.insertCell(1);
     let cell3 = row.insertCell(2);
@@ -702,7 +704,14 @@ function loadFromSheet(){
 
     cell1.innerHTML = table.rows.length-1;
     cell2.innerHTML = student.name;
-    cell3.innerHTML = student.birth;
+    let date = new Date(student.birth);
+
+let formatted =
+    ("0" + date.getDate()).slice(-2) + "/" +
+    ("0" + (date.getMonth()+1)).slice(-2) + "/" +
+    date.getFullYear();
+
+cell3.innerHTML = formatted;
     cell4.innerHTML = student.parent;
     cell5.innerHTML = student.phone;
     cell6.innerHTML = student.address;
